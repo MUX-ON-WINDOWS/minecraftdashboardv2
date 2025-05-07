@@ -1,73 +1,118 @@
-# Welcome to your Lovable project
+# Minecraft Dashboard
 
-## Project info
+A modern web application for managing and monitoring your Minecraft servers. Built with React, TypeScript, and Supabase.
 
-**URL**: https://lovable.dev/projects/70ef1436-4d20-44d7-a54f-3b5044770a3a
+## Features
 
-## How can I edit this code?
+- 🖥️ **Server Management**
+  - Add and remove Minecraft servers
+  - Monitor server status (Online/Offline)
+  - Track player count
+  - View detailed server information
+  - Real-time status updates
 
-There are several ways of editing your application.
+- 📊 **Dashboard Overview**
+  - Total players online
+  - Number of servers online
+  - Maintenance status tracking
+  - Issue monitoring
 
-**Use Lovable**
+- 🔐 **User Authentication**
+  - Secure login and signup
+  - User-specific server lists
+  - Protected routes
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/70ef1436-4d20-44d7-a54f-3b5044770a3a) and start prompting.
+- 🎨 **Modern UI**
+  - Clean and intuitive interface
+  - Dark mode support
+  - Responsive design
+  - Real-time status indicators
 
-Changes made via Lovable will be committed automatically to this repo.
+## Tech Stack
 
-**Use your preferred IDE**
+- **Frontend**
+  - React
+  - TypeScript
+  - Vite
+  - Tailwind CSS
+  - Shadcn/ui Components
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- **Backend**
+  - Supabase (Authentication & Database)
+  - Real-time updates
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## Getting Started
 
-Follow these steps:
+### Prerequisites
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+- Node.js (v16 or higher)
+- npm or yarn
+- Supabase account
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### Installation
 
-# Step 3: Install the necessary dependencies.
-npm i
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/MUX-ON-WINDOWS/minecraftdashboard.git
+   cd minecraftdashboard
+   ```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+2. Install dependencies:
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
+
+3. Create a `.env` file in the root directory and add your Supabase credentials:
+   ```env
+   VITE_SUPABASE_URL=your_supabase_url
+   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+   ```
+
+4. Start the development server:
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
+
+5. Open [http://localhost:8080](http://localhost:8080) in your browser.
+
+### Building for Production
+
+```bash
+npm run build
+# or
+yarn build
 ```
 
-**Edit a file directly in GitHub**
+## Project Structure
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```
+src/
+├── components/     # Reusable UI components
+├── pages/         # Page components
+├── integrations/  # External service integrations
+├── utils/         # Utility functions
+├── hooks/         # Custom React hooks
+└── lib/           # Library configurations
+```
 
-**Use GitHub Codespaces**
+## Contributing
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-## What technologies are used for this project?
+## License
 
-This project is built with:
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Acknowledgments
 
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/70ef1436-4d20-44d7-a54f-3b5044770a3a) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+- [Shadcn/ui](https://ui.shadcn.com/) for the beautiful UI components
+- [Supabase](https://supabase.com/) for the backend services
+- [Tailwind CSS](https://tailwindcss.com/) for the styling framework

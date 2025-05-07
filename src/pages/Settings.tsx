@@ -10,6 +10,10 @@ import { Separator } from "@/components/ui/separator";
 import DashboardHeader from "@/components/DashboardHeader";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Camera } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import { useTheme } from "@/lib/theme-context";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Moon, Sun, Monitor } from "lucide-react";
 
 const Settings = () => {
   const [username, setUsername] = useState("");
@@ -20,6 +24,7 @@ const Settings = () => {
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
     const getUser = async () => {
@@ -162,6 +167,14 @@ const Settings = () => {
       
       <main className="container mx-auto px-4 py-6">
         <div className="grid gap-6">
+          <Button 
+            variant="outline" 
+            className="mb-6" 
+            onClick={() => navigate("/")}
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" /> Back to Dashboard
+          </Button>
+
           {/* Profile Section */}
           <Card>
             <CardHeader>
@@ -262,6 +275,71 @@ const Settings = () => {
               >
                 Update Password
               </Button>
+            </CardContent>
+          </Card>
+
+          <Separator className="my-4" />
+
+          {/* Theme Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Theme</CardTitle>
+              <CardDescription>
+                Choose your preferred theme for the dashboard.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-2">
+                <h3 className="text-lg font-medium">Theme</h3>
+                <RadioGroup
+                  value={theme}
+                  onValueChange={(value) => setTheme(value as "light" | "dark" | "system")}
+                  className="grid grid-cols-3 gap-4 pt-2"
+                >
+                  <div>
+                    <RadioGroupItem
+                      value="light"
+                      id="light"
+                      className="peer sr-only"
+                    />
+                    <Label
+                      htmlFor="light"
+                      className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
+                    >
+                      <Sun className="mb-3 h-6 w-6" />
+                      Light
+                    </Label>
+                  </div>
+                  <div>
+                    <RadioGroupItem
+                      value="dark"
+                      id="dark"
+                      className="peer sr-only"
+                    />
+                    <Label
+                      htmlFor="dark"
+                      className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
+                    >
+                      <Moon className="mb-3 h-6 w-6" />
+                      Dark
+                    </Label>
+                  </div>
+                  <div>
+                    <RadioGroupItem
+                      value="system"
+                      id="system"
+                      className="peer sr-only"
+                    />
+                    <Label
+                      htmlFor="system"
+                      className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
+                    >
+                      <Monitor className="mb-3 h-6 w-6" />
+                      System
+                    </Label>
+                  </div>
+                </RadioGroup>
+              </div>
             </CardContent>
           </Card>
         </div>

@@ -11,6 +11,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Settings from "@/pages/Settings";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { ThemeProvider } from "@/lib/theme-context";
 
 const queryClient = new QueryClient();
 
@@ -37,36 +38,38 @@ const App = () => {
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <Router>
-          <Routes>
-            <Route 
-              path="/" 
-              element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />} 
-            />
-            <Route 
-              path="/settings" 
-              element={isAuthenticated ? <Settings /> : <Navigate to="/login" />} 
-            />
-            <Route 
-              path="/login" 
-              element={!isAuthenticated ? <Login /> : <Navigate to="/" />} 
-            />
-            <Route path="/signup" element={<Signup />} />
-            
-            {/* Protected Routes */}
-            <Route element={<ProtectedRoute />}>
-              <Route path="/dashboard" element={<Dashboard />} />
-            </Route>
-            
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Router>
-      </TooltipProvider>
-    </QueryClientProvider>
+    <ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <Router basename="/minecraft">
+            <Routes>
+              <Route 
+                path="/" 
+                element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />} 
+              />
+              <Route 
+                path="/settings" 
+                element={isAuthenticated ? <Settings /> : <Navigate to="/" />} 
+              />
+              <Route 
+                path="/login" 
+                element={!isAuthenticated ? <Login /> : <Navigate to="/" />} 
+              />
+              <Route path="/signup" element={<Signup />} />
+              
+              {/* Protected Routes */}
+              <Route element={<ProtectedRoute />}>
+                <Route path="/dashboard" element={<Dashboard />} />
+              </Route>
+              
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Router>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 };
 

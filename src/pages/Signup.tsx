@@ -64,7 +64,7 @@ const Signup = () => {
         <Card className="w-full">
           <CardHeader className="space-y-1">
             <div className="flex flex-col items-center w-full max-w-md">
-              <img src="/logo.png" alt="Minecraft Dashboard Logo" className="w-20 h-20 mb-6 rounded" />
+              <img src="/minecraft/logo.png" alt="Minecraft Dashboard Logo" className="w-20 h-20 mb-6 rounded" />
             </div>
             <CardTitle className="text-2xl font-bold text-center">Create an account</CardTitle>
             <CardDescription className="text-center">

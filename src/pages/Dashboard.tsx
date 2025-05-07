@@ -8,6 +8,7 @@ import DashboardHeader from "@/components/DashboardHeader";
 import StatsCards from "@/components/StatsCards";
 import { supabase } from "@/integrations/supabase/client";
 import AddServerDialog from "@/components/AddServerDialog";
+import DeleteServerDialog from "@/components/DeleteServerDialog";
 import { useNavigate } from "react-router-dom";
 import ServerOverview from "@/components/ServerOverview";
 import { checkServerStatus } from "@/utils/serverStatus";
@@ -31,6 +32,8 @@ const Dashboard = () => {
   const [selectedServer, setSelectedServer] = useState<Server | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isAutoRefreshing, setIsAutoRefreshing] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [serverToDelete, setServerToDelete] = useState<Server | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const refreshTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const { toast } = useToast();
@@ -178,6 +181,11 @@ const Dashboard = () => {
     );
 
     setServers(updatedServers);
+  };
+
+  const handleDeleteClick = (server: Server) => {
+    setServerToDelete(server);
+    setDeleteDialogOpen(true);
   };
 
   const deleteServer = async (id: string) => {
@@ -336,7 +344,7 @@ const Dashboard = () => {
                           <Button 
                             variant="destructive" 
                             size="sm"
-                            onClick={() => deleteServer(server.id)}
+                            onClick={() => handleDeleteClick(server)}
                           >
                             <Trash className="h-4 w-4" />
                           </Button>
@@ -361,6 +369,13 @@ const Dashboard = () => {
         open={isAddServerOpen} 
         onOpenChange={setIsAddServerOpen} 
         onServerAdded={addServer}
+      />
+
+      <DeleteServerDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        serverName={serverToDelete?.name || ''}
+        onConfirm={() => serverToDelete && deleteServer(serverToDelete.id)}
       />
     </div>
   );
