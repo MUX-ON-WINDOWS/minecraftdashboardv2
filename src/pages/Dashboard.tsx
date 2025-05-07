@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -30,10 +30,13 @@ const Dashboard = () => {
   const [isAddServerOpen, setIsAddServerOpen] = useState(false);
   const [selectedServer, setSelectedServer] = useState<Server | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isAutoRefreshing, setIsAutoRefreshing] = useState(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const refreshTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const fetchServers = async () => {
+  const fetchServers = async (signal?: AbortSignal) => {
     try {
       setIsLoading(true);
       const { data: { user } } = await supabase.auth.getUser();
@@ -52,24 +55,95 @@ const Dashboard = () => {
         throw error;
       }
 
-      setServers(data || []);
+      if (signal?.aborted) return;
+
+      // Check status for each server
+      const updatedServers = await Promise.all(
+        (data || []).map(async (server) => {
+          if (signal?.aborted) return server;
+          try {
+            const address = server.url || server.ip;
+            if (!address) return server;
+
+            const status = await checkServerStatus(address);
+            const updatedServer = {
+              ...server,
+              status: status.online ? "Online" : "Offline",
+              players: status.players?.online || 0
+            };
+
+            if (signal?.aborted) return server;
+
+            // Update in database
+            await supabase
+              .from("servers")
+              .update({
+                status: updatedServer.status,
+                players: updatedServer.players
+              })
+              .eq("id", server.id);
+
+            return updatedServer;
+          } catch (error) {
+            console.error(`Error checking status for server ${server.name}:`, error);
+            return server;
+          }
+        })
+      );
+
+      if (!signal?.aborted) {
+        setServers(updatedServers);
+      }
     } catch (error: any) {
-      console.error("Error fetching servers:", error);
-      toast({
-        title: "Error fetching servers",
-        description: error.message,
-        variant: "destructive",
-      });
+      if (!signal?.aborted) {
+        console.error("Error fetching servers:", error);
+        toast({
+          title: "Error fetching servers",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
     } finally {
-      setIsLoading(false);
+      if (!signal?.aborted) {
+        setIsLoading(false);
+      }
     }
   };
 
+  const scheduleRefresh = () => {
+    if (refreshTimeoutRef.current) {
+      clearTimeout(refreshTimeoutRef.current);
+    }
+
+    refreshTimeoutRef.current = setTimeout(async () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+      abortControllerRef.current = new AbortController();
+      
+      setIsAutoRefreshing(true);
+      try {
+        await fetchServers(abortControllerRef.current.signal);
+      } finally {
+        setIsAutoRefreshing(false);
+        scheduleRefresh();
+      }
+    }, 2 * 60 * 1000);
+  };
+
   useEffect(() => {
-    fetchServers();
-    // Set up periodic status check every 5 minutes
-    const interval = setInterval(checkAllServerStatuses, 5 * 60 * 1000);
-    return () => clearInterval(interval);
+    abortControllerRef.current = new AbortController();
+    fetchServers(abortControllerRef.current.signal);
+    scheduleRefresh();
+
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+      if (refreshTimeoutRef.current) {
+        clearTimeout(refreshTimeoutRef.current);
+      }
+    };
   }, []);
 
   const checkAllServerStatuses = async () => {
@@ -141,13 +215,21 @@ const Dashboard = () => {
   };
 
   const refreshServers = async () => {
+    if (isRefreshing) return;
     setIsRefreshing(true);
-    await checkAllServerStatuses();
-    toast({
-      title: "Refreshed",
-      description: "Server statuses have been updated",
-    });
-    setIsRefreshing(false);
+    try {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+      abortControllerRef.current = new AbortController();
+      await fetchServers(abortControllerRef.current.signal);
+      toast({
+        title: "Refreshed",
+        description: "Server statuses have been updated",
+      });
+    } finally {
+      setIsRefreshing(false);
+    }
   };
 
   const viewServerOverview = (server: Server) => {
@@ -186,9 +268,9 @@ const Dashboard = () => {
                   variant="outline" 
                   size="icon" 
                   onClick={refreshServers}
-                  disabled={isRefreshing}
+                  disabled={isRefreshing || isAutoRefreshing}
                 >
-                  <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+                  <RefreshCw className={`h-4 w-4 ${(isRefreshing || isAutoRefreshing) ? 'animate-spin' : ''}`} />
                 </Button>
                 <Button 
                   variant="default" 
