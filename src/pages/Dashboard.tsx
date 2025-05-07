@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import AddServerDialog from "@/components/AddServerDialog";
 import { useNavigate } from "react-router-dom";
 import ServerOverview from "@/components/ServerOverview";
+import { checkServerStatus } from "@/utils/serverStatus";
 
 const Dashboard = () => {
   const [servers, setServers] = useState<any[]>([]);
@@ -23,7 +23,44 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchServers();
+    // Set up periodic status check every 5 minutes
+    const interval = setInterval(checkAllServerStatuses, 5 * 60 * 1000);
+    return () => clearInterval(interval);
   }, []);
+
+  const checkAllServerStatuses = async () => {
+    const updatedServers = await Promise.all(
+      servers.map(async (server) => {
+        try {
+          const address = server.url || server.ip;
+          if (!address) return server;
+
+          const status = await checkServerStatus(address);
+          const updatedServer = {
+            ...server,
+            status: status.online ? "Online" : "Offline",
+            players: status.players?.online || 0
+          };
+
+          // Update in database
+          await supabase
+            .from("servers")
+            .update({
+              status: updatedServer.status,
+              players: updatedServer.players
+            })
+            .eq("id", server.id);
+
+          return updatedServer;
+        } catch (error) {
+          console.error(`Error checking status for server ${server.name}:`, error);
+          return server;
+        }
+      })
+    );
+
+    setServers(updatedServers);
+  };
 
   const fetchServers = async () => {
     try {
@@ -38,6 +75,8 @@ const Dashboard = () => {
       }
 
       setServers(data || []);
+      // Check statuses after fetching servers
+      await checkAllServerStatuses();
     } catch (error: any) {
       toast({
         title: "Error fetching servers",
@@ -85,10 +124,10 @@ const Dashboard = () => {
 
   const refreshServers = async () => {
     setIsRefreshing(true);
-    await fetchServers();
+    await checkAllServerStatuses();
     toast({
       title: "Refreshed",
-      description: "Server list has been refreshed",
+      description: "Server statuses have been updated",
     });
     setIsRefreshing(false);
   };
