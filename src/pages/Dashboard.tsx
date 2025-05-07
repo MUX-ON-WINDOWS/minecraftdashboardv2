@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Trash, RefreshCw } from "lucide-react";
+import { Trash, RefreshCw, Plus } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import DashboardHeader from "@/components/DashboardHeader";
 import StatsCards from "@/components/StatsCards";
@@ -12,14 +12,58 @@ import { useNavigate } from "react-router-dom";
 import ServerOverview from "@/components/ServerOverview";
 import { checkServerStatus } from "@/utils/serverStatus";
 
+interface Server {
+  id: string;
+  name: string;
+  ip: string;
+  port: string;
+  url: string | null;
+  status: string;
+  players: number;
+  user_id: string;
+  created_at: string;
+}
+
 const Dashboard = () => {
-  const [servers, setServers] = useState<any[]>([]);
+  const [servers, setServers] = useState<Server[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isAddServerOpen, setIsAddServerOpen] = useState(false);
-  const [selectedServer, setSelectedServer] = useState<any>(null);
+  const [selectedServer, setSelectedServer] = useState<Server | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  const fetchServers = async () => {
+    try {
+      setIsLoading(true);
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        throw new Error("You must be logged in to view servers");
+      }
+
+      const { data, error } = await supabase
+        .from("servers")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        throw error;
+      }
+
+      setServers(data || []);
+    } catch (error: any) {
+      console.error("Error fetching servers:", error);
+      toast({
+        title: "Error fetching servers",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchServers();
@@ -62,32 +106,6 @@ const Dashboard = () => {
     setServers(updatedServers);
   };
 
-  const fetchServers = async () => {
-    try {
-      setIsLoading(true);
-      const { data, error } = await supabase
-        .from("servers")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error) {
-        throw error;
-      }
-
-      setServers(data || []);
-      // Check statuses after fetching servers
-      await checkAllServerStatuses();
-    } catch (error: any) {
-      toast({
-        title: "Error fetching servers",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const deleteServer = async (id: string) => {
     try {
       const { error } = await supabase
@@ -113,7 +131,7 @@ const Dashboard = () => {
     }
   };
 
-  const addServer = (newServer: any) => {
+  const addServer = (newServer: Server) => {
     setServers([newServer, ...servers]);
     setIsAddServerOpen(false);
     toast({
@@ -132,7 +150,7 @@ const Dashboard = () => {
     setIsRefreshing(false);
   };
 
-  const viewServerOverview = (server: any) => {
+  const viewServerOverview = (server: Server) => {
     setSelectedServer(server);
   };
 
@@ -160,16 +178,28 @@ const Dashboard = () => {
         <StatsCards stats={stats} />
         
         <Card className="mt-6">
-          <CardHeader className="pb-3 flex flex-row items-center justify-between">
-            <CardTitle>Server List</CardTitle>
-            <Button 
-              variant="outline" 
-              size="icon" 
-              onClick={refreshServers}
-              disabled={isRefreshing}
-            >
-              <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-            </Button>
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle>Server List</CardTitle>
+              <div className="flex items-center gap-2">
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  onClick={refreshServers}
+                  disabled={isRefreshing}
+                >
+                  <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+                </Button>
+                <Button 
+                  variant="default" 
+                  size="icon"
+                  onClick={() => setIsAddServerOpen(true)}
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="rounded-md border overflow-hidden">

@@ -240,7 +240,7 @@ const AddServerDialog = ({ open, onOpenChange, onServerAdded }: AddServerDialogP
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button className="bg-green-600 hover:bg-green-700 text-white" type="submit" disabled={isSubmitting}>
               {isSubmitting ? "Adding..." : "Add Server"}
             </Button>
           </DialogFooter>
