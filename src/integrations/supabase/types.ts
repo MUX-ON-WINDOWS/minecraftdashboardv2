@@ -33,6 +33,45 @@ export type Database = {
         }
         Relationships: []
       }
+      servers: {
+        Row: {
+          created_at: string | null
+          id: string
+          ip: string
+          name: string
+          players: number | null
+          port: string
+          status: string | null
+          updated_at: string | null
+          url: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          ip: string
+          name: string
+          players?: number | null
+          port: string
+          status?: string | null
+          updated_at?: string | null
+          url?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          ip?: string
+          name?: string
+          players?: number | null
+          port?: string
+          status?: string | null
+          updated_at?: string | null
+          url?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

@@ -24,9 +24,13 @@ const ProtectedRoute = () => {
     };
   }, []);
 
-  // Show nothing while we check authentication
+  // Show loading indicator while checking authentication
   if (isLoggedIn === null) {
-    return null;
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
   }
 
   return isLoggedIn ? (
