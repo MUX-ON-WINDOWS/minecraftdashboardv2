@@ -9,9 +9,11 @@ import { useToast } from "@/components/ui/use-toast";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
-const Login = () => {
+const Signup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [username, setUsername] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -21,7 +23,7 @@ const Login = () => {
     setIsLoading(true);
 
     // Simple validation
-    if (!email || !password) {
+    if (!email || !password || !confirmPassword || !username) {
       toast({
         title: "Error",
         description: "Please fill in all fields",
@@ -31,15 +33,41 @@ const Login = () => {
       return;
     }
 
+    if (password !== confirmPassword) {
+      toast({
+        title: "Error",
+        description: "Passwords do not match",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+      return;
+    }
+
+    if (password.length < 6) {
+      toast({
+        title: "Error",
+        description: "Password must be at least 6 characters",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      // Sign up with Supabase
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          data: {
+            username,
+          },
+        },
       });
 
       if (error) {
         toast({
-          title: "Error signing in",
+          title: "Error signing up",
           description: error.message,
           variant: "destructive",
         });
@@ -47,20 +75,24 @@ const Login = () => {
         return;
       }
 
-      // Successful login
-      localStorage.setItem("isLoggedIn", "true");
+      // Successful signup
       toast({
         title: "Success",
-        description: "Logged in successfully",
+        description: "Account created successfully! Please check your email for confirmation.",
       });
-      navigate("/dashboard");
+      
+      // Redirect to login page
+      setTimeout(() => {
+        navigate("/");
+      }, 2000);
+      
     } catch (error) {
       toast({
         title: "Unexpected error",
-        description: "An unexpected error occurred during login",
+        description: "An unexpected error occurred during signup",
         variant: "destructive",
       });
-      console.error("Login error:", error);
+      console.error("Signup error:", error);
     } finally {
       setIsLoading(false);
     }
@@ -71,16 +103,27 @@ const Login = () => {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-white mb-2">Server Dashboard</h1>
-          <p className="text-gray-300">Sign in to manage your servers</p>
+          <p className="text-gray-300">Create an account to get started</p>
         </div>
         
         <Card>
           <CardHeader>
-            <CardTitle>Login</CardTitle>
-            <CardDescription>Enter your credentials to access your dashboard</CardDescription>
+            <CardTitle>Sign Up</CardTitle>
+            <CardDescription>Create a new account to access the dashboard</CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="username">Username</Label>
+                <Input 
+                  id="username"
+                  type="text" 
+                  placeholder="johndoe" 
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                />
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input 
@@ -103,6 +146,17 @@ const Login = () => {
                   required
                 />
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <Input 
+                  id="confirmPassword"
+                  type="password" 
+                  placeholder="••••••••" 
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                />
+              </div>
             </CardContent>
             <CardFooter className="flex flex-col space-y-3">
               <Button 
@@ -110,11 +164,11 @@ const Login = () => {
                 className="w-full" 
                 disabled={isLoading}
               >
-                {isLoading ? "Logging in..." : "Login"}
+                {isLoading ? "Creating account..." : "Sign Up"}
               </Button>
               <div className="text-center w-full">
-                <span className="text-sm text-gray-500">Don't have an account?</span>
-                <Link to="/signup" className="text-sm text-blue-500 hover:underline ml-2">Sign up</Link>
+                <span className="text-sm text-gray-500">Already have an account?</span>
+                <Link to="/" className="text-sm text-blue-500 hover:underline ml-2">Log in</Link>
               </div>
             </CardFooter>
           </form>
@@ -124,4 +178,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Signup;

@@ -1,10 +1,9 @@
 
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LogOut, Plus, Trash } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Trash } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import DashboardHeader from "@/components/DashboardHeader";
 import StatsCards from "@/components/StatsCards";
@@ -24,25 +23,7 @@ const initialServerData = [
 
 const Dashboard = () => {
   const [servers, setServers] = useState(initialServerData);
-  const navigate = useNavigate();
   const { toast } = useToast();
-
-  useEffect(() => {
-    // Check if user is logged in
-    const isLoggedIn = localStorage.getItem("isLoggedIn");
-    if (!isLoggedIn) {
-      navigate("/");
-    }
-  }, [navigate]);
-
-  const handleLogout = () => {
-    localStorage.removeItem("isLoggedIn");
-    toast({
-      title: "Logged out",
-      description: "You have been successfully logged out",
-    });
-    navigate("/");
-  };
 
   const deleteServer = (id: string) => {
     setServers(servers.filter(server => server.id !== id));
@@ -69,7 +50,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
-      <DashboardHeader onLogout={handleLogout} onAddServer={addServer} />
+      <DashboardHeader onAddServer={addServer} />
       
       <main className="container mx-auto px-4 py-6">
         <StatsCards stats={stats} />
