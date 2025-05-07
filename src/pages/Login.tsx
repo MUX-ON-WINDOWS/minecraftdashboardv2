@@ -43,52 +43,58 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Welcome back</CardTitle>
-          <CardDescription className="text-center">
-            Enter your credentials to access your account
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="name@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
+      <div className="flex flex-col items-center w-full max-w-md">
+        <Card className="w-full">
+          <CardHeader className="space-y-1">
+            <div className="flex flex-col items-center w-full max-w-md">
+              <img src="/logo.png" alt="Minecraft Dashboard Logo" className="w-20 h-20 mb-6 rounded" />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-            <Button 
-              type="submit" 
-              className="w-full bg-blue-600 hover:bg-blue-700"
-              disabled={isLoading}
-            >
-              {isLoading ? "Signing in..." : "Sign in"}
-            </Button>
-            <p className="text-center text-sm text-gray-600 dark:text-gray-400">
-              Don't have an account?{" "}
-              <Link to="/signup" className="text-blue-600 hover:text-blue-700">
-                Sign up
-              </Link>
-            </p>
-          </form>
-        </CardContent>
-      </Card>
+            <CardTitle className="text-2xl font-bold text-center">Login</CardTitle>
+            <CardDescription className="text-center">
+              Enter your credentials to access your account
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+              <Button
+                type="submit"
+                className="w-full bg-blue-600 hover:bg-blue-700"
+                disabled={isLoading}
+              >
+                {isLoading ? "Signing in..." : "Sign in"}
+              </Button>
+              <p className="text-center text-sm text-gray-600 dark:text-gray-400">
+                Don't have an account?{" "}
+                <Link to="/signup" className="text-blue-600 hover:text-blue-700">
+                  Sign up
+                </Link>
+              </p>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
