@@ -6,6 +6,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { FaGoogle, FaDiscord } from "react-icons/fa";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -41,6 +42,32 @@ const Login = () => {
     }
   };
 
+  const handleSocialLogin = async (provider: 'google' | 'discord') => {
+    try {
+      setIsLoading(true);
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/minecraft/`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
+        },
+      });
+
+      if (error) throw error;
+    } catch (error: any) {
+      toast({
+        title: "Error logging in",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex items-center justify-center p-4">
       <div className="flex flex-col items-center w-full max-w-md">
@@ -55,7 +82,39 @@ const Login = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleLogin} className="space-y-4">
+            <div className="grid gap-4">
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => handleSocialLogin('google')}
+                  disabled={isLoading}
+                  className="w-full"
+                >
+                  <FaGoogle className="mr-2" />
+                  Google
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => handleSocialLogin('discord')}
+                  disabled={isLoading}
+                  className="w-full"
+                >
+                  <FaDiscord className="mr-2" />
+                  Discord
+                </Button>
+              </div>
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">
+                    Or continue with
+                  </span>
+                </div>
+              </div>
+            </div>
+            <form onSubmit={handleLogin} className="space-y-4 mt-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input

@@ -8,6 +8,8 @@ import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminProtectedRoute from "./components/AdminProtectedRoute";
+import AdminDashboard from "./pages/AdminDashboard";
 import Settings from "@/pages/Settings";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -62,6 +64,11 @@ const App = () => {
               {/* Protected Routes */}
               <Route element={<ProtectedRoute />}>
                 <Route path="/dashboard" element={<Dashboard />} />
+              </Route>
+
+              {/* Admin Routes */}
+              <Route element={<AdminProtectedRoute />}>
+                <Route path="/admin" element={<AdminDashboard />} />
               </Route>
               
               <Route path="*" element={<NotFound />} />
